@@ -1,0 +1,34 @@
+meta {
+  name: 04 - Alterar Insumo
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/insumos/:id
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{insumoId}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nome": "{{insumoNome}}",
+    "precoUnitario": 49.90,
+    "estoqueAtual": 25,
+    "estoqueMinimo": 10,
+    "unidade": "L"
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+

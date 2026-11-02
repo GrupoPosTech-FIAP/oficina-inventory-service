@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-config
+data:
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory_db
+  SPRING_DATASOURCE_USERNAME: postgres
+  SPRING_PROFILES_ACTIVE: prod
+  SERVER_PORT: "8083"
+

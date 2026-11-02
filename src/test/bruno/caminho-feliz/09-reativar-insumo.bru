@@ -1,0 +1,23 @@
+meta {
+  name: 09 - Reativar Insumo
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/insumos/:id/ativar
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {{insumoId}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: eq {{insumoId}}
+  res.body.ativo: eq true
+  res.body.estoqueAtual: eq 10
+}
+

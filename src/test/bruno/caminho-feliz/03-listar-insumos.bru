@@ -1,0 +1,16 @@
+meta {
+  name: 03 - Listar Insumos Ativos
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/insumos
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
+

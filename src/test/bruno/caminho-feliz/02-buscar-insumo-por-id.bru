@@ -1,0 +1,23 @@
+meta {
+  name: 02 - Buscar Insumo por ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/insumos/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {{insumoId}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: eq {{insumoId}}
+  res.body.estoqueAtual: eq 20
+  res.body.ativo: eq true
+}
+

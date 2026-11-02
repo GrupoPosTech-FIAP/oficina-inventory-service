@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.mecanica.oficina_inventory_service.adapters.persistence.InsumosJpaGatewayTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.33 s -- in com.mecanica.oficina_inventory_service.adapters.persistence.InsumosJpaGatewayTest

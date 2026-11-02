@@ -1,0 +1,20 @@
+meta {
+  name: 08 - Desativar Insumo (Soft Delete)
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/insumos/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: {{insumoId}}
+}
+
+assert {
+  res.status: eq 204
+}
+

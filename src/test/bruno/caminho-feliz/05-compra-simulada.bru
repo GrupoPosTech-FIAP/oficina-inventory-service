@@ -1,0 +1,32 @@
+meta {
+  name: 05 - Compra Simulada de Insumo
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/insumos/:id/compra-simulada
+  body: json
+  auth: none
+}
+
+params:path {
+  id: {{insumoId}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "quantidade": 15
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: eq {{insumoId}}
+  res.body.estoqueAtual: eq 40
+}
+
