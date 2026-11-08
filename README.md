@@ -91,6 +91,7 @@ graph TD
 Para instruções operacionais e detalhes do ciclo de vida na nuvem, consulte a pasta [`docs/`](docs/):
 
 * 🚀 **[Guia de Deploy e Destruição na AWS (EKS + RDS + CD)](docs/deploy-aws.md):** Manual completo com o passo a passo de subida das esteiras de CI/CD, configuração de credenciais no Learner Lab, testes na nuvem e o **roteiro obrigatório de destruição da infraestrutura**.
+* 📨 **[Mensageria (SNS + SQS)](docs/mensageria.md):** Outbox, consumidor idempotente, DLQ e LocalStack para a Saga coreografada.
 * 📋 **[Plano de Implementação e Extração do `oficina-inventory-service`](docs/plano-implementacao-inventory-service.md):** Detalhamento das decisões arquiteturais, estrutura de pacotes e resgate das regras de baixa/estorno de estoque.
 
 ---
