@@ -13,11 +13,17 @@ consumir) está em
 | Publica em | `oficina-inventory-events` |
 | Consome | `oficina-inventory-queue` (DLQ: `oficina-inventory-dlq`) |
 | Eventos que publica (ADR 005) | EstoqueBaixado, EstoqueInsuficiente, EstoqueEstornado |
-| Eventos que recebe | OrcamentoAprovado, PagamentoRecusado, PagamentoExpirado (billing), ExecucaoFalhou (execution) |
+| Eventos que recebe | OrcamentoAprovado, PagamentoRecusado, PagamentoExpirado (billing), ExecucaoFalhou (os; execution quando o serviço existir) |
 
-> Nesta etapa só a infraestrutura está pronta: nenhum caso de uso publica eventos e não há
-> `ManipuladorEvento` registrado. Eventos recebidos são marcados como processados e logados
-> com `[SAGA_EVENTO_SEM_MANIPULADOR]`.
+### Passos da Saga
+
+| Gatilho | Caso de uso | Resultado |
+|---|---|---|
+| `OrcamentoAprovado` | `BaixarEstoqueOrdemServicoUseCase` | Confere o saldo de todos os insumos antes de mexer no estoque. Faltando algum → `EstoqueInsuficiente` (nada é baixado). Senão baixa tudo, grava `baixas_ordem_servico` e publica `EstoqueBaixado` (também com lista vazia) |
+| `PagamentoRecusado`, `PagamentoExpirado`, `ExecucaoFalhou` | `EstornarEstoqueOrdemServicoUseCase` | Devolve exatamente o que foi baixado para a OS → `EstoqueEstornado`. Sem baixa ou já estornada, não faz nada |
+
+O registro em `baixas_ordem_servico` existe porque os eventos de falha não trazem a lista de
+insumos; ele também impede baixar duas vezes a mesma OS.
 
 ## Peças
 
@@ -28,7 +34,7 @@ consumir) está em
 | `adapters/messaging/OutboxRelay` | Publica os pendentes no SNS (atributo `eventType`) |
 | `adapters/messaging/SqsConsumidorEventos` | Recebe da fila; só apaga depois de processar |
 | `adapters/messaging/ProcessadorEventos` | Deduplica por `eventId` (`eventos_processados`) e chama o manipulador |
-| `adapters/messaging/ManipuladorEvento` | Interface dos manipuladores, um por `eventType` |
+| `adapters/messaging/ManipuladorEvento` | Interface dos manipuladores; cada um declara os `eventTypes` que trata |
 
 ## Configuração
 
