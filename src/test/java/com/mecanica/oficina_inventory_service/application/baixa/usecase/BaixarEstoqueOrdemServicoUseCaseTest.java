@@ -60,8 +60,8 @@ class BaixarEstoqueOrdemServicoUseCaseTest {
     @SuppressWarnings("unchecked")
     void baixaTudoRegistraEPublicaEstoqueBaixadoConsolidandoInsumosRepetidos() {
         when(baixaGateway.buscarPorOrdemServico("os-1")).thenReturn(Optional.empty());
-        when(insumosGateway.buscar("ins-1")).thenReturn(Optional.of(insumo("ins-1", 10)));
-        when(insumosGateway.buscar("ins-2")).thenReturn(Optional.of(insumo("ins-2", 1)));
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumo("ins-1", 10)));
+        when(insumosGateway.buscarParaAtualizar("ins-2")).thenReturn(Optional.of(insumo("ins-2", 1)));
 
         useCase.executar("os-1", List.of(
                 new ItemEstoqueInput("ins-1", 2),
@@ -91,9 +91,9 @@ class BaixarEstoqueOrdemServicoUseCaseTest {
     @SuppressWarnings("unchecked")
     void saldoInsuficienteNaoBaixaNadaEPublicaEstoqueInsuficiente() {
         when(baixaGateway.buscarPorOrdemServico("os-1")).thenReturn(Optional.empty());
-        when(insumosGateway.buscar("ins-1")).thenReturn(Optional.of(insumo("ins-1", 10)));
-        when(insumosGateway.buscar("ins-2")).thenReturn(Optional.of(insumo("ins-2", 1)));
-        when(insumosGateway.buscar("ins-x")).thenReturn(Optional.empty());
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumo("ins-1", 10)));
+        when(insumosGateway.buscarParaAtualizar("ins-2")).thenReturn(Optional.of(insumo("ins-2", 1)));
+        when(insumosGateway.buscarParaAtualizar("ins-x")).thenReturn(Optional.empty());
 
         useCase.executar("os-1", List.of(
                 new ItemEstoqueInput("ins-1", 2),

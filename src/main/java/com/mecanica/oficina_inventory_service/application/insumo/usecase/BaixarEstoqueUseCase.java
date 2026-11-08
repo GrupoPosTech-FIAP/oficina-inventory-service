@@ -7,6 +7,7 @@ import com.mecanica.oficina_inventory_service.application.insumo.output.AlertaEs
 import com.mecanica.oficina_inventory_service.domain.insumo.Insumos;
 import com.mecanica.oficina_inventory_service.domain.insumo.OrigemNotificacaoEstoque;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class BaixarEstoqueUseCase {
@@ -18,6 +19,7 @@ public class BaixarEstoqueUseCase {
         this.notificarEstoqueBaixoGateway = notificarEstoqueBaixoGateway;
     }
 
+    /** Deve rodar numa transação: cada insumo fica travado até o commit (ver {@link InsumosGateway#buscarParaAtualizar}). */
     public void executar(List<ItemEstoqueInput> itens) {
         if (itens == null || itens.isEmpty()) {
             throw new IllegalArgumentException("A lista de itens para baixa não pode ser vazia");
@@ -30,8 +32,10 @@ public class BaixarEstoqueUseCase {
             if (item.quantidade() == null || item.quantidade() <= 0) {
                 throw new IllegalArgumentException("Quantidade para baixa deve ser positiva");
             }
+        }
 
-            Insumos insumo = insumosGateway.buscar(item.insumoId())
+        for (ItemEstoqueInput item : emOrdemDeTrava(itens)) {
+            Insumos insumo = insumosGateway.buscarParaAtualizar(item.insumoId())
                     .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado: " + item.insumoId()));
 
             int estoqueAnterior = insumo.getEstoqueAtual();
@@ -52,6 +56,11 @@ public class BaixarEstoqueUseCase {
                         OrigemNotificacaoEstoque.BAIXA_ORDEM_SERVICO));
             }
         }
+    }
+
+    /** Itens em ordem crescente de id, a ordem em que os insumos devem ser travados. */
+    static List<ItemEstoqueInput> emOrdemDeTrava(List<ItemEstoqueInput> itens) {
+        return itens.stream().sorted(Comparator.comparing(ItemEstoqueInput::insumoId)).toList();
     }
 }
 

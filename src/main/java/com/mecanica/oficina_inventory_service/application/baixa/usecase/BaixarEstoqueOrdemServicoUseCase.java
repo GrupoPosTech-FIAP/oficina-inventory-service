@@ -12,6 +12,7 @@ import com.mecanica.oficina_inventory_service.domain.insumo.Insumos;
 
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,10 @@ import java.util.Optional;
  * {@code EstoqueInsuficiente} sem mexer no estoque. Caso contrário baixa tudo, guarda o registro
  * da baixa (usado na compensação) e publica {@code EstoqueBaixado} — inclusive com lista vazia,
  * para a Saga seguir quando a OS não usa insumos.
+ *
+ * <p>Concorrência: os insumos são travados na conferência (em ordem de id) e só liberados no commit,
+ * então duas OS disputando o último item não passam as duas — a segunda espera e vê o saldo já
+ * baixado. Deve rodar numa transação (a do consumidor da fila).
  */
 public class BaixarEstoqueOrdemServicoUseCase {
 
@@ -54,7 +59,7 @@ public class BaixarEstoqueOrdemServicoUseCase {
 
         List<Map<String, Object>> faltantes = new ArrayList<>();
         for (ItemBaixa item : itens) {
-            int disponivel = insumosGateway.buscar(item.insumoId()).map(Insumos::getEstoqueAtual).orElse(0);
+            int disponivel = insumosGateway.buscarParaAtualizar(item.insumoId()).map(Insumos::getEstoqueAtual).orElse(0);
             if (disponivel < item.quantidade()) {
                 faltantes.add(Map.of(
                         "insumoId", item.insumoId(),
@@ -82,7 +87,7 @@ public class BaixarEstoqueOrdemServicoUseCase {
                 "itens", paraPayload(itens)));
     }
 
-    /** Soma as quantidades de um mesmo insumo que apareça mais de uma vez no orçamento. */
+    /** Soma as quantidades de um mesmo insumo que apareça mais de uma vez no orçamento; ordena por id (ordem de trava). */
     private static List<ItemBaixa> consolidar(List<ItemEstoqueInput> itensSolicitados) {
         Map<String, Integer> quantidades = new LinkedHashMap<>();
         for (ItemEstoqueInput item : Optional.ofNullable(itensSolicitados).orElse(List.of())) {
@@ -96,6 +101,7 @@ public class BaixarEstoqueOrdemServicoUseCase {
         }
         return quantidades.entrySet().stream()
                 .map(e -> new ItemBaixa(e.getKey(), e.getValue()))
+                .sorted(Comparator.comparing(ItemBaixa::insumoId))
                 .toList();
     }
 

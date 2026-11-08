@@ -18,11 +18,10 @@ public class AlterarInsumoUseCase {
     }
 
     public void executar(String id, String nome, BigDecimal precoUnitario, Integer estoqueAtual, Integer estoqueMinimo, String unidade) {
-        if (!insumosGateway.existePorId(id)) {
-            throw new IllegalArgumentException("Insumo não encontrado");
-        }
-
-        int estoqueAnterior = insumosGateway.obterEstoqueAtual(id);
+        // trava o insumo até o commit, para não sobrescrever uma baixa ou compra em andamento
+        int estoqueAnterior = insumosGateway.buscarParaAtualizar(id)
+                .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado"))
+                .getEstoqueAtual();
 
         var insumos = Insumos.reconstituir(
                 id,

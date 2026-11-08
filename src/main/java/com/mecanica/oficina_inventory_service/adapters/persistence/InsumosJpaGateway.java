@@ -23,6 +23,11 @@ public class InsumosJpaGateway implements InsumosGateway {
     }
 
     @Override
+    public Optional<Insumos> buscarParaAtualizar(String id) {
+        return repo.travarAtivoPorId(id).map(this::toDomain);
+    }
+
+    @Override
     public Boolean existePorNome(String nome) {
         return repo.existsByAtivoTrueAndNome(nome);
     }

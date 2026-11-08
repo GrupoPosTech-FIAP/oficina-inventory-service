@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -126,6 +127,7 @@ public class InsumosController {
             @ApiResponse(responseCode = "400", description = "Erro de validação nos campos de entrada",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
+    @Transactional // o insumo fica travado até o fim (InsumosGateway.buscarParaAtualizar)
     public ResponseEntity<Void> alterarInsumo(@PathVariable String id, @Valid @RequestBody AlterarInsumosRequest request) {
         alterarInsumoUseCase.executar(
                 id,
@@ -149,6 +151,7 @@ public class InsumosController {
             @ApiResponse(responseCode = "400", description = "Erro de validação nos campos de entrada",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
+    @Transactional // o insumo fica travado até o fim (InsumosGateway.buscarParaAtualizar)
     public ResponseEntity<InsumosResponse> compraSimulada(
             @PathVariable String id,
             @Valid @RequestBody ComprarInsumoSimuladoRequest request) {
@@ -167,6 +170,7 @@ public class InsumosController {
             @ApiResponse(responseCode = "400", description = "Erro de validação nos campos de entrada",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
+    @Transactional // o insumo fica travado até o fim (InsumosGateway.buscarParaAtualizar)
     public ResponseEntity<Void> baixarEstoque(@Valid @RequestBody MovimentarEstoqueLoteRequest request) {
         List<ItemEstoqueInput> itens = request.getItens().stream()
                 .map(i -> new ItemEstoqueInput(i.getInsumoId(), i.getQuantidade()))
@@ -185,6 +189,7 @@ public class InsumosController {
             @ApiResponse(responseCode = "400", description = "Erro de validação nos campos de entrada",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class)))
     })
+    @Transactional // o insumo fica travado até o fim (InsumosGateway.buscarParaAtualizar)
     public ResponseEntity<Void> estornarEstoque(@Valid @RequestBody MovimentarEstoqueLoteRequest request) {
         List<ItemEstoqueInput> itens = request.getItens().stream()
                 .map(i -> new ItemEstoqueInput(i.getInsumoId(), i.getQuantidade()))
