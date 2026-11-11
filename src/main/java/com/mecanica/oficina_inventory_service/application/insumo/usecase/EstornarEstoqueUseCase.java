@@ -13,6 +13,7 @@ public class EstornarEstoqueUseCase {
         this.insumosGateway = insumosGateway;
     }
 
+    /** Deve rodar numa transação: cada insumo fica travado até o commit (ver {@link InsumosGateway#buscarParaAtualizar}). */
     public void executar(List<ItemEstoqueInput> itens) {
         if (itens == null || itens.isEmpty()) {
             throw new IllegalArgumentException("A lista de itens para estorno não pode ser vazia");
@@ -25,8 +26,10 @@ public class EstornarEstoqueUseCase {
             if (item.quantidade() == null || item.quantidade() <= 0) {
                 throw new IllegalArgumentException("Quantidade deve ser informada e ser um inteiro positivo");
             }
+        }
 
-            Insumos insumo = insumosGateway.buscar(item.insumoId())
+        for (ItemEstoqueInput item : BaixarEstoqueUseCase.emOrdemDeTrava(itens)) {
+            Insumos insumo = insumosGateway.buscarParaAtualizar(item.insumoId())
                     .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado: " + item.insumoId()));
 
             insumo.adicionarEstoque(item.quantidade());

@@ -41,7 +41,7 @@ class BaixarEstoqueUseCaseTest {
     @Test
     void deveDarBaixaSemNotificar_quandoEstoquePermaneceAcimaDoMinimo() {
         Insumos insumo = Insumos.reconstituir("ins-1", "Óleo 5W30", BigDecimal.valueOf(50), 10, 2, "L");
-        when(insumosGateway.buscar("ins-1")).thenReturn(Optional.of(insumo));
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumo));
 
         useCase.executar(List.of(new ItemEstoqueInput("ins-1", 3)));
 
@@ -54,7 +54,7 @@ class BaixarEstoqueUseCaseTest {
     @Test
     void deveDarBaixaENotificar_quandoEstoqueCruzaParaCritico() {
         Insumos insumo = Insumos.reconstituir("ins-1", "Óleo 5W30", BigDecimal.valueOf(50), 5, 2, "L");
-        when(insumosGateway.buscar("ins-1")).thenReturn(Optional.of(insumo));
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumo));
 
         useCase.executar(List.of(new ItemEstoqueInput("ins-1", 4)));
 
@@ -73,7 +73,7 @@ class BaixarEstoqueUseCaseTest {
     @Test
     void deveLancarIllegalStateException_quandoEstoqueInsuficiente() {
         Insumos insumo = Insumos.reconstituir("ins-1", "Óleo 5W30", BigDecimal.valueOf(50), 2, 1, "L");
-        when(insumosGateway.buscar("ins-1")).thenReturn(Optional.of(insumo));
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumo));
 
         assertThatThrownBy(() -> useCase.executar(List.of(new ItemEstoqueInput("ins-1", 5))))
                 .isInstanceOf(IllegalStateException.class)
@@ -85,7 +85,7 @@ class BaixarEstoqueUseCaseTest {
 
     @Test
     void deveLancarIllegalArgumentException_quandoInsumoNaoEncontrado() {
-        when(insumosGateway.buscar("inexistente")).thenReturn(Optional.empty());
+        when(insumosGateway.buscarParaAtualizar("inexistente")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> useCase.executar(List.of(new ItemEstoqueInput("inexistente", 2))))
                 .isInstanceOf(IllegalArgumentException.class)

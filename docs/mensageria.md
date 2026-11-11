@@ -13,11 +13,30 @@ consumir) está em
 | Publica em | `oficina-inventory-events` |
 | Consome | `oficina-inventory-queue` (DLQ: `oficina-inventory-dlq`) |
 | Eventos que publica (ADR 005) | EstoqueBaixado, EstoqueInsuficiente, EstoqueEstornado |
-| Eventos que recebe | OrcamentoAprovado, PagamentoRecusado, PagamentoExpirado (billing), ExecucaoFalhou (execution) |
+| Eventos que recebe | OrcamentoAprovado, PagamentoRecusado, PagamentoExpirado (billing), ExecucaoFalhou (os; execution quando o serviço existir) |
 
-> Nesta etapa só a infraestrutura está pronta: nenhum caso de uso publica eventos e não há
-> `ManipuladorEvento` registrado. Eventos recebidos são marcados como processados e logados
-> com `[SAGA_EVENTO_SEM_MANIPULADOR]`.
+### Passos da Saga
+
+| Gatilho | Caso de uso | Resultado |
+|---|---|---|
+| `OrcamentoAprovado` | `BaixarEstoqueOrdemServicoUseCase` | Confere o saldo de todos os insumos antes de mexer no estoque. Faltando algum → `EstoqueInsuficiente` (nada é baixado). Senão baixa tudo, grava `baixas_ordem_servico` e publica `EstoqueBaixado` (também com lista vazia) |
+| `PagamentoRecusado`, `PagamentoExpirado`, `ExecucaoFalhou` | `EstornarEstoqueOrdemServicoUseCase` | Devolve exatamente o que foi baixado para a OS → `EstoqueEstornado`. Sem baixa ou já estornada, não faz nada |
+
+O registro em `baixas_ordem_servico` existe porque os eventos de falha não trazem a lista de
+insumos; ele também impede baixar duas vezes a mesma OS.
+
+### Concorrência
+
+Toda alteração de saldo (baixa e estorno da Saga, os endpoints `/insumos/baixa`, `/insumos/estorno`,
+`/insumos/{id}/compra-simulada` e `PUT /insumos/{id}`) lê o insumo com
+`InsumosGateway.buscarParaAtualizar`, que faz `SELECT ... FOR UPDATE` e segura a linha até o
+commit. Duas OS disputando o último item não passam juntas: a segunda espera a primeira terminar
+e já confere o saldo baixado, publicando `EstoqueInsuficiente`. Com várias réplicas consumindo a
+mesma fila, a trava no banco vale para todas.
+
+Os insumos de um pedido são travados sempre em ordem crescente de id, para que duas transações
+nunca fiquem esperando uma pela outra. `SagaEstoqueIntegracaoTest.baixasConcorrentesNaoVendemMaisDoQueOEstoque`
+dispara oito aprovações ao mesmo tempo e confere que só as que cabem no estoque são baixadas.
 
 ## Peças
 
@@ -28,7 +47,7 @@ consumir) está em
 | `adapters/messaging/OutboxRelay` | Publica os pendentes no SNS (atributo `eventType`) |
 | `adapters/messaging/SqsConsumidorEventos` | Recebe da fila; só apaga depois de processar |
 | `adapters/messaging/ProcessadorEventos` | Deduplica por `eventId` (`eventos_processados`) e chama o manipulador |
-| `adapters/messaging/ManipuladorEvento` | Interface dos manipuladores, um por `eventType` |
+| `adapters/messaging/ManipuladorEvento` | Interface dos manipuladores; cada um declara os `eventTypes` que trata |
 
 ## Configuração
 

@@ -1,5 +1,9 @@
 package com.mecanica.oficina_inventory_service.adapters.config;
 
+import com.mecanica.oficina_inventory_service.application.baixa.gateway.BaixaOrdemServicoGateway;
+import com.mecanica.oficina_inventory_service.application.baixa.usecase.BaixarEstoqueOrdemServicoUseCase;
+import com.mecanica.oficina_inventory_service.application.baixa.usecase.EstornarEstoqueOrdemServicoUseCase;
+import com.mecanica.oficina_inventory_service.application.evento.gateway.PublicadorEventosGateway;
 import com.mecanica.oficina_inventory_service.application.insumo.gateway.InsumosGateway;
 import com.mecanica.oficina_inventory_service.application.insumo.gateway.NotificarEstoqueBaixoGateway;
 import com.mecanica.oficina_inventory_service.application.insumo.usecase.AlterarInsumoUseCase;
@@ -11,6 +15,7 @@ import com.mecanica.oficina_inventory_service.application.insumo.usecase.Estorna
 import com.mecanica.oficina_inventory_service.application.insumo.usecase.InativarInsumoUseCase;
 import com.mecanica.oficina_inventory_service.application.insumo.usecase.ListarInsumosUseCase;
 import com.mecanica.oficina_inventory_service.application.insumo.usecase.RegistrarCompraUseCase;
+import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -61,5 +66,21 @@ public class InsumoConfig {
     public EstornarEstoqueUseCase estornarEstoqueUseCase(InsumosGateway insumosGateway) {
         return new EstornarEstoqueUseCase(insumosGateway);
     }
-}
 
+    @Bean
+    public BaixarEstoqueOrdemServicoUseCase baixarEstoqueOrdemServicoUseCase(InsumosGateway insumosGateway,
+                                                                             BaixaOrdemServicoGateway baixaGateway,
+                                                                             BaixarEstoqueUseCase baixarEstoqueUseCase,
+                                                                             PublicadorEventosGateway publicador,
+                                                                             Clock clock) {
+        return new BaixarEstoqueOrdemServicoUseCase(insumosGateway, baixaGateway, baixarEstoqueUseCase, publicador, clock);
+    }
+
+    @Bean
+    public EstornarEstoqueOrdemServicoUseCase estornarEstoqueOrdemServicoUseCase(BaixaOrdemServicoGateway baixaGateway,
+                                                                                 EstornarEstoqueUseCase estornarEstoqueUseCase,
+                                                                                 PublicadorEventosGateway publicador,
+                                                                                 Clock clock) {
+        return new EstornarEstoqueOrdemServicoUseCase(baixaGateway, estornarEstoqueUseCase, publicador, clock);
+    }
+}

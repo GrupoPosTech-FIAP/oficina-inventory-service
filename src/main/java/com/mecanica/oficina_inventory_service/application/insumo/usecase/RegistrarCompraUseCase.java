@@ -15,7 +15,7 @@ public class RegistrarCompraUseCase {
             throw new IllegalArgumentException("Quantidade deve ser informada e ser um inteiro positivo");
         }
 
-        var insumo = insumosGateway.buscar(id)
+        var insumo = insumosGateway.buscarParaAtualizar(id)
                 .orElseThrow(() -> new IllegalArgumentException("Insumo não encontrado"));
 
         insumo.adicionarEstoque(quantidade);

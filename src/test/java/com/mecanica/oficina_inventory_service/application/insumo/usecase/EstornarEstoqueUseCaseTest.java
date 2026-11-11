@@ -35,7 +35,7 @@ class EstornarEstoqueUseCaseTest {
     @Test
     void deveEstornarEstoqueEmLoteComSucesso() {
         Insumos insumo = Insumos.reconstituir("ins-1", "Óleo 5W30", BigDecimal.valueOf(50), 7, 2, "L");
-        when(insumosGateway.buscar("ins-1")).thenReturn(Optional.of(insumo));
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumo));
 
         useCase.executar(List.of(new ItemEstoqueInput("ins-1", 3)));
 
@@ -46,7 +46,7 @@ class EstornarEstoqueUseCaseTest {
 
     @Test
     void deveLancarIllegalArgumentException_quandoInsumoNaoEncontrado() {
-        when(insumosGateway.buscar("inexistente")).thenReturn(Optional.empty());
+        when(insumosGateway.buscarParaAtualizar("inexistente")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> useCase.executar(List.of(new ItemEstoqueInput("inexistente", 2))))
                 .isInstanceOf(IllegalArgumentException.class)

@@ -5,6 +5,7 @@ import com.mecanica.oficina_inventory_service.application.insumo.gateway.Notific
 import com.mecanica.oficina_inventory_service.application.insumo.output.AlertaEstoqueBaixo;
 import com.mecanica.oficina_inventory_service.domain.insumo.Insumos;
 import com.mecanica.oficina_inventory_service.domain.insumo.OrigemNotificacaoEstoque;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,8 +39,7 @@ class AlterarInsumoUseCaseTest {
 
     @Test
     void deveAlterarInsumoSemNotificar_quandoEstoqueAcimaDoMinimo() {
-        when(insumosGateway.existePorId("ins-1")).thenReturn(true);
-        when(insumosGateway.obterEstoqueAtual("ins-1")).thenReturn(10);
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumoComEstoque(10)));
 
         useCase.executar("ins-1", "Filtro", BigDecimal.valueOf(30), 5, 1, "UN");
 
@@ -52,8 +52,7 @@ class AlterarInsumoUseCaseTest {
 
     @Test
     void deveNotificarEstoqueBaixo_quandoEstoqueFicaAbaixoDoMinimo() {
-        when(insumosGateway.existePorId("ins-1")).thenReturn(true);
-        when(insumosGateway.obterEstoqueAtual("ins-1")).thenReturn(10);
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumoComEstoque(10)));
 
         useCase.executar("ins-1", "Óleo", BigDecimal.valueOf(30), 3, 5, "L");
 
@@ -69,8 +68,7 @@ class AlterarInsumoUseCaseTest {
 
     @Test
     void deveNotificarEstoqueBaixo_quandoEstoqueIgualAoMinimo() {
-        when(insumosGateway.existePorId("ins-1")).thenReturn(true);
-        when(insumosGateway.obterEstoqueAtual("ins-1")).thenReturn(2);
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumoComEstoque(2)));
 
         useCase.executar("ins-1", "Óleo", BigDecimal.valueOf(30), 5, 5, "L");
 
@@ -79,7 +77,7 @@ class AlterarInsumoUseCaseTest {
 
     @Test
     void deveLancarExcecao_quandoInsumoNaoEncontrado() {
-        when(insumosGateway.existePorId("inexistente")).thenReturn(false);
+        when(insumosGateway.buscarParaAtualizar("inexistente")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
                 useCase.executar("inexistente", "Filtro", BigDecimal.valueOf(30), 5, 1, "UN")
@@ -89,5 +87,8 @@ class AlterarInsumoUseCaseTest {
         verify(insumosGateway, never()).alterar(anyString(), any());
         verify(notificarEstoqueBaixoGateway, never()).notificar(any());
     }
-}
 
+    private static Insumos insumoComEstoque(int estoque) {
+        return Insumos.reconstituir("ins-1", "Óleo", new java.math.BigDecimal("10.00"), estoque, 2, "un");
+    }
+}

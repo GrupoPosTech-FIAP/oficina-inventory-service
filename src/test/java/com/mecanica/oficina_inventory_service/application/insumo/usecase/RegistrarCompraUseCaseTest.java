@@ -33,7 +33,7 @@ class RegistrarCompraUseCaseTest {
     @Test
     void deveRegistrarCompraAdicionandoEstoque() {
         Insumos insumo = Insumos.reconstituir("ins-1", "Óleo", BigDecimal.valueOf(50), 10, 2, "LITRO");
-        when(insumosGateway.buscar("ins-1")).thenReturn(Optional.of(insumo));
+        when(insumosGateway.buscarParaAtualizar("ins-1")).thenReturn(Optional.of(insumo));
         when(insumosGateway.alterar(eq("ins-1"), any())).thenAnswer(inv -> inv.getArgument(1));
 
         Insumos resultado = useCase.executar("ins-1", 5);
@@ -67,7 +67,7 @@ class RegistrarCompraUseCaseTest {
 
     @Test
     void deveLancarExcecao_quandoInsumoNaoEncontrado() {
-        when(insumosGateway.buscar("inexistente")).thenReturn(Optional.empty());
+        when(insumosGateway.buscarParaAtualizar("inexistente")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> useCase.executar("inexistente", 5))
                 .isInstanceOf(IllegalArgumentException.class)
