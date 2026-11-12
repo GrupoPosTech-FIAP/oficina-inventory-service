@@ -13,7 +13,7 @@ consumir) está em
 | Publica em | `oficina-inventory-events` |
 | Consome | `oficina-inventory-queue` (DLQ: `oficina-inventory-dlq`) |
 | Eventos que publica (ADR 005) | EstoqueBaixado, EstoqueInsuficiente, EstoqueEstornado |
-| Eventos que recebe | OrcamentoAprovado, PagamentoRecusado, PagamentoExpirado (billing), ExecucaoFalhou (os; execution quando o serviço existir) |
+| Eventos que recebe | OrcamentoAprovado, PagamentoRecusado, PagamentoExpirado (billing), ExecucaoFalhou (execution) |
 
 ### Passos da Saga
 
