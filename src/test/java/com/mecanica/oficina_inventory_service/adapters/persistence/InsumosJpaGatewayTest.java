@@ -56,12 +56,15 @@ class InsumosJpaGatewayTest {
     void deveListarApenasInsumosAtivos() {
         Insumos inativado = gateway.criar(novoInsumo("Inativo"));
         gateway.inativar(inativado.getId());
-        gateway.criar(novoInsumo("Ativo"));
+        Insumos ativo = gateway.criar(novoInsumo("Ativo"));
 
         List<Insumos> ativos = gateway.listar();
 
-        assertThat(ativos).hasSize(1);
-        assertThat(ativos.get(0).getNome()).isEqualTo("Ativo");
+        // o banco de teste é compartilhado: outras classes podem deixar insumos gravados
+        assertThat(ativos).allMatch(Insumos::getAtivo);
+        assertThat(ativos).extracting(Insumos::getId)
+                .contains(ativo.getId())
+                .doesNotContain(inativado.getId());
     }
 
     @Test
