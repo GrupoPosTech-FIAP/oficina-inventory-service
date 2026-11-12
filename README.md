@@ -166,6 +166,20 @@ WARN [ALERTA_ESTOQUE_MINIMO] tipo_origem=baixa_os insumo_id=9b1deb4d-3b7d-4bad-9
 
 ---
 
+## ✅ Testes e qualidade
+
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=GrupoPosTech-FIAP_oficina-inventory-service&metric=alert_status)](https://sonarcloud.io/summary/overall?id=GrupoPosTech-FIAP_oficina-inventory-service) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GrupoPosTech-FIAP_oficina-inventory-service&metric=coverage)](https://sonarcloud.io/component_measures?id=GrupoPosTech-FIAP_oficina-inventory-service&metric=coverage)
+
+```bash
+./mvnw clean verify   # testes + relatório e gate do JaCoCo
+```
+
+- **Cobertura:** o JaCoCo reprova o `verify` abaixo de **80% de linhas**. Hoje: **97,1%** (125 testes).
+  Relatório em `target/site/jacoco/index.html`; o CI escreve o percentual no resumo de cada execução.
+- **Qualidade:** o CI ([`maven.yml`](.github/workflows/maven.yml)) analisa o código no
+  [SonarCloud](https://sonarcloud.io/summary/overall?id=GrupoPosTech-FIAP_oficina-inventory-service) e o build falha se o
+  quality gate reprovar. A análise roda quando o secret `SONAR_TOKEN` existe na organização.
+
 ## 🚀 Como Executar
 
 ### Pré-requisitos
